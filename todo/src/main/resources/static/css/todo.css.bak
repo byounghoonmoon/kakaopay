@@ -1,0 +1,99 @@
+@CHARSET "EUC-KR";
+
+table{
+	font-family: "Tahoma", Verdana, Arial, Helvetica, sans-serif;
+	font-size:  80%;
+	width: 100%;
+	border-collapse:separate;
+	border-spacing:0;
+	border-collapse: collapse;
+	text-align: center;
+}
+
+table tr:hover{
+	background-color: #FFCCCC;
+}
+
+thead{
+	table-layout: fixed;
+}
+
+thead tr{
+	background-color: #ffffdd;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+table tfoot {
+	font-family: "Tahoma", Verdana, Arial, Helvetica, sans-serif;
+	font-size:  150%;
+	text-align: center;
+	width: 100%;
+}
+
+thead th{
+	padding: 0.5em;
+	white-space: nowrap;
+}
+
+tr{
+	background-color: #FFFFFF;
+}
+
+tr.odd{
+	background-color: #E0FEDB;
+}
+
+tbody tr:hover{
+	background-color: #FFCCCC;
+}
+
+td, th{
+	border: 1px dotted #CCCCCC;
+}
+
+.pagingWrap {
+	padding-top : 10px;
+	text-align: center;
+}
+
+.footer-button {
+	float: right;
+}
+.popup-table td{
+	border: 1px solid #CCCCCC;
+}
+
+.popup-table div{
+	text-align: center;
+}
+
+
+.popup{
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 150px;
+	top: 25px;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+}
+
+.popup-content{
+	background-color: #fefefe;
+	margin: 15% auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 30%;		
+}
+
+#todo-relation-list{
+	text-align: center;
+}
+
+li{
+	font-family: "Tahoma", Verdana, Arial, Helvetica, sans-serif;
+	font-size:  80%;
+	list-style: none;
+}
