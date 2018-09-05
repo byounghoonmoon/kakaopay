@@ -7,7 +7,8 @@ $(document).ready(function() {
 	
 	 $('#popup-todo-register').hide();
      $('#popup-todo-detail').hide();
-     
+      $('#btn-todo-modify').click(modifyToDo);
+       $('#btn-todo-complete').click(completeToDo);
      init();
 });
 
@@ -22,60 +23,27 @@ function init(){
 	searchToDoList("?size=5&page=0&sort=id,asc",rendering_todo_list);
 	
 	
-
-	/*
-	$.ajax({
-		type: "GET",
-		url: "http://"+location.host+"/api/todo?size=5&page=0&sort=id,asc",
-		success	: function(data) {
-			rendering_todo_list(data.content);	//배열 넘김
-		},
-		error	: function(request, status, error) { 
-			console.error("■ 초기값 생성 실패 : [" + status+"] ");
-		}
-	});
-
-	
-	var result={};
-	var list=[];
-	
-	for(var i=0; i<3; i++)
-	{ 
-		var temp={};
-		temp.id=i;
-		temp.title="청소"+i;
-		temp.cret="2018.09.03 18:00:00";
-		temp.mdfc="2018.09.03 18:00:00";
-		temp.completeYn="N";
-		list.push(temp);
-	}
-	result.status ="200";
-	result.list = list;
-	var sampleData = JSON.stringify(result);	// JSON String 
-	console.debug("■ □ ■ □ ■ 응 답 결 과  ");
-	console.debug(sampleData.list);
-	console.debug("■ □ ■ □ ■ 응 답 결 과  ");
-	
-	
-	
-	rendering_todo_list(result.list);
-	paging(result.list.length, dataPerPage, pageCount, 1);
-	*/
-	
-	
 }
 
+function convertFlag(param){
+	if(param>0)
+		return 'Y';
+	else
+		return 'N';
+}
 function rendering_todo_list(data){
 	console.info(" ■ Function Call => rendering_todo_list");
 	$('#todo-content').empty();
 	$.each(data.content, function(idx,param){
+		console.debug(param)
 		$('#todo-content').append(
-					'<tr> <td>'
-				+param.id+'</td><td>'
-				+param.title+'</td><td>'
-				+param.createdAt+'</td><td>'
-				+param.mdfc+'</td><td>'
-				+param.completeYn+'</td></tr>'
+					'<tr id='+"todo-"+param.id+' rel="'+param.relation+'"><td>'
+				+param.id+'</td><td val='+param.title+'>'
+				+'<a href="#" onclick="popup_todo_detail_show('+param.id+')");>'
+				+param.title+param.relation+'</a></td><td>'
+				+param.createTime+'</td><td>'
+				+param.completeTime+'</td><td>'
+				+convertFlag(param.completeYN)+'</td></tr>'
 		);
 	});
 	paging(data.totalElements, dataPerPage, pageCount, data.pageable.pageNumber+1);
@@ -101,7 +69,8 @@ function rendering_todo_list_relation(data){
 function popup_todo_register_show(){
 	// 1. 할일 목록 조회 ( 참조 걸기 위해 )
 	// 2. 참조 선택 리스트 렌더링
-	searchToDoList("?size=9&page=0&sort=id,asc",rendering_todo_list_relation);
+	searchToDoList_sample("?size=9&page=0&sort=id,asc",rendering_todo_list_relation);
+	$('#todo-title').val("");
 	$('#popup-todo-register').show();
 }
 
@@ -109,7 +78,14 @@ function popup_todo_register_hide(){
 	$('#popup-todo-register').hide();
 }
 
-function popup_todo_detail_show(){
+function popup_todo_detail_show(id){
+	
+	$('#detail-todo-id').text( $("#todo-"+id).children().eq(0).text());
+	$('#detail-todo-id').attr('rel', $("#todo-"+id).attr('rel'));
+	$('#detail-todo-title').val( $("#todo-"+id).children().eq(1).attr('val'));
+	$('#detail-todo-createTime').text( $("#todo-"+id).children().eq(2).text());
+	$('#detail-todo-completeTime').text( $("#todo-"+id).children().eq(3).text());
+	$('#detail-todo-completeYN').text( $("#todo-"+id).children().eq(4).text());
 	$('#popup-todo-detail').show();
 }
 
@@ -137,42 +113,96 @@ function searchToDoList(option,callback) {
 
 
 
-//할일 조회화기 특정아이디
-function searchToDoById(id) {
+//할일 조회 특정아이디
+function searchToDoById(id, callback) {
 	
-	var param ='{id="",'+id+ '}';
-
+		$.ajax({
+		type: "GET",
+		url: "http://"+location.host+"/api/todo/"+id,
+		contentType: "application/json",
+		data: "",
+		success	: function(data) {
+			callback(data);
+		},
+		error	: function(request, status, error) {
+			console.error("■ Error 조회에러 : [" + request+"] " );
+		}
+	});
+	}
+//할일 조회 특정아이디
+function searchToDoByIdComplete(id) {
+	
+	var result = false;
+	
 	$.ajax({
 		type: "GET",
 		url: "http://"+location.host+"/api/todo/"+id,
 		contentType: "application/json",
-		data: JSON.stringify(param),
+		data: "",
 		success	: function(data) {
-			rendering_todo_list(data);
+			if(data.completeYN>0)
+				result = false;
+			else
+				result = true;
 		},
-		error	: function(request, status, error, data) {
-			console.error("■ Error : [" + status+"] " + data.message + "에러가 발생했습니다.");
+		error	: function(request, status, error) {
+			console.error("■ Error 조회에러 : [" + request+"] " );
 		}
 	});
+
+	if(result)
+		console.debug("■ ID : "+id+" 완료 ! ");
+	else
+		console.debug("■ ID : "+id+" 미완료 ! ");
+	
+	return result;
 }
 
 //할일 등록하기 
 function registerToDo() {
 	
-	console.debug(" ■ 할일 등록 하기 : " + $('#todo-nm').val());
+	// 1. 할일명 가져오기
+	// 2. 참조걸 할일 선택 (Option)
+	// 3. Rest API 호출 POST 
+		
+	var relation ="";
+	$('input:radio:checked').each(function(){
+		relation+="@"+$(this).attr('val');
+	});
 	
 	var param={};
+	param.title = $('#todo-title').val();
+	param.relation = relation;
+	param.completeYN ="0";
+	
+	console.info("● 등록 파라미터 " );
+	console.info(param);
+	
+	if(param.title=="")
+	{
+		alert("할일명을 입력하세요! ");
+		return;
+	}
+	var jsonData = JSON.stringify(param);	// JSON String
 
+	/*
+	alert("정상적으로 등록 되었습니다.");
+	popup_todo_register_hide();
+	init_test();
+	*/
+	
 	$.ajax({
 		type: "POST",
 		url: "http://"+location.host+"/api/todo/",
-		data: "",
+		contentType: "application/json",
+		data: jsonData,
 		success	: function(data) {
-			alert(data.message + "강제 수행 완료되었습니다.");
-			loading();
+			alert("정상적으로 등록 되었습니다.");
+			popup_todo_register_hide();
+			init();
 		},
-		error	: function(request, status, error, data) {
-			console.error("■ Error : [" + status+"] " + data.message + "에러가 발생했습니다.");
+		error	: function(request, status, error) {
+			console.error("■ 등록 Error : [" + status+"] ");
 		}
 	});
 }
@@ -180,42 +210,111 @@ function registerToDo() {
 
 
 // 할일 수정하기 
-function modifyToDo(id) {
-	if (!confirm("할일 내용을 수정하시겠습니까?")) {
+function modifyToDo() {
+
+	// 1. 수정대상 할일 아이디
+	// 2. 수정할일 명 가져오기
+	// 3. rest API 호출 PUT
+	
+	var id = $('#detail-todo-id').text();
+	
+	var param ={};
+	param.id = id;
+	param.title = $('#detail-todo-title').val();
+	
+	var jsonData = JSON.stringify(param);	// JSON String
+	
+	if (!confirm("할일명을 '"+ param.title +"'로 수정 하시겠습니까?")) {
 		return;
 	}			
 	$.ajax({
 		type: "PUT",
 		url: "http://"+location.host+"/api/todo/"+id,
-		data: "",
+		contentType: "application/json",
+		data: jsonData,
 		success	: function(data) {
-			loading();
+			alert("정상적으로 수정 되었습니다.");
+			popup_todo_detail_hide();
+			init();
 		},
-		error	: function(request, status, error, data) {
-			console.error("■ Error : [" + status+"] " + data.message + "에러가 발생했습니다.");
+		error	: function(request, status, error) {
+			console.error("■ 수정 Error : [" + status+"] ");
 		}
 	});
 }
 
 //할일 완료하기 
-function completeToDo(id) {
-	if (!confirm("할일을 완료 하시겠습니까?")) {
+function completeToDo() {
+	
+	// 1. 기 완료처리 여부 
+	// 2. 참조 할일 완료처리 여부 확인 
+	
+	var id = $('#detail-todo-id').text();
+	var completeYN = $('#detail-todo-completeYN').text();
+	var relation =$('#detail-todo-id').attr('rel');
+	
+	if(completeYN =="Y"){
+		alert('이미 완료처리 되었습니다.');
+		return;
+	}
+	
+	console.debug(" ■ 참조대상 : " + relation);
+
+	if(relation!=""){
+		console.debug("참조대상 존재!");
+		if(!checkRelation(relation))
+			return;
+	}
+	
+	var param ={};
+	param.id = id;
+	param.completeYN = 1;
+	
+	console.debug(" ■ 할일 Parameter ");
+	console.debug(param);
+	
+	var jsonData = JSON.stringify(param);	// JSON String
+	
+	if (!confirm("id '"+id + "' 할일을 완료로 등록 하시겠습니까?")) {
 		return;
 	}			
 	$.ajax({
 		type: "PUT",
 		url: "http://"+location.host+"/api/todo/"+id,
-		data: "",
+		contentType: "application/json",
+		data: jsonData,
 		success	: function(data) {
-			loading();	// callBack
+			alert("정상적으로 완료 되었습니다.");
+			popup_todo_detail_hide();
+			init();
 		},
-		error	: function(request, status, error, data) {
-			console.error("■ Error : [" + status+"] " + data.message + "에러가 발생했습니다.");
+		error	: function(request, status, error) {
+			console.error("■ 할일 완료처리 Error : [" + status+"] ");
 		}
 	});
 	
 }
 
+function checkRelation(param){
+	
+	// 1. 참조값 StringTockernize
+	var rel = param.split('@');
+	var result = true;
+	
+	console.info (" ■ 참조 배열 " + rel.length);
+	for(var i=1; i<rel.length; i++)
+	{
+		console.info(" ● 참조 :" + rel[i]);
+		if(	searchToDoByIdComplete( rel[i]) )
+		{
+			alert("할일 ID "+ rel[i] + "가 완료되지 않았습니다.")
+			result = false;
+			return result;
+		}
+	}
+	
+	return result; 
+}
 
 // 페이징 처리
 function paging(totalData, dataPerPage, pageCount, currentPage){
