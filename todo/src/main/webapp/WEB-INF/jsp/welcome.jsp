@@ -1,4 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"%> 
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+
 	<html>
   
 	<head>
@@ -8,14 +9,15 @@
 
 	
 	<script src="js/jquery-1.9.1.js"></script>
-	<script src="js/todo.js"></script>
+	<script src="js/todo.js?ver=1x">as</script>
 	<link rel="stylesheet" type="text/css" href="css/todo.css"/>
 	
-	<body>
+	<body> 
 	
 	
-		<div>
-			<h2> 서버 개발지원자 : 문병훈 </h2> 
+		<div style="width:800px;">
+			<h2> 서버 개발 포지션 : 문병훈 </h2>
+			<button id="initData">테스트 데이터 생성</button>
 		</div>
 		
 		<div id ="todo-table" style="width:800px;">
@@ -32,48 +34,11 @@
 					<th>id</th>
 					<th>할일</th>
 					<th>등록시간</th>
-					<th>수정시간</th>
+					<th>완료시간</th>
 					<th>완료여부</th>
 				</tr>
 			</thead>
 			<tbody id ="todo-content">
-				<tr>
-					<td>1</td>
-					<td>
-						<a href="#" id="777" onclick="popup_show();">청소</a>
-					</td>
-					<td>2018-09-04 17:30:30</td>
-					<td>2018-09-04 17:30:30</td>
-					<td> N </td>
-				</tr>
-				<tr>
-					<td>2</td>
-					<td>방청소</td>
-					<td>2018-09-04 17:30:30</td>
-					<td>2018-09-04 17:30:30</td>
-					<td> N </td>
-				</tr>
-				<tr>
-					<td>3</td>
-					<td>부엌청소</td>
-					<td>2018-09-04 17:30:30</td>
-					<td>2018-09-04 17:30:30</td>
-					<td> N </td>
-				</tr>
-				<tr>
-					<td>4</td>
-					<td>방청소</td>
-					<td>2018-09-04 17:30:30</td>
-					<td>2018-09-04 17:30:30</td>
-					<td> N </td>
-				</tr>
-				<tr>
-					<td>5</td>
-					<td>부엌청소</td>
-					<td>2018-09-04 17:30:30</td>
-					<td>2018-09-04 17:30:30</td>
-					<td> N </td>
-				</tr>
 			</tbody>
 		</table>
 		<div class="pagingWrap" id ="paging">
@@ -93,11 +58,12 @@
 					<col width="40%">
 					<col width="60%">
 				</colgroup>
-				<tr>	<td>ID</td>		 <td id="detail-todo-id"></td>	</tr>
-				<tr>	<td>할일</td> 	 <td><input id="detail-todo-title" style="width:95%"></input></td>	</tr>
-				<tr>	<td>등록시간</td><td id="detail-todo-createTime"></td>	</tr>
-				<tr>	<td>완료시간</td><td id="detail-todo-completeTime"></td>	</tr>
-				<tr>	<td>완료여부</td><td id="detail-todo-completeYN"></td>	</tr>
+				<tr>	<td>ID</td>				 <td id="detail-todo-id" class="detail-todo-content"></td>	</tr>
+				<tr>	<td>할일</td> <td><input id="detail-todo-title" class="detail-todo-content" style="width:95%"></input></td>	</tr>
+				<tr>	<td>참조된 할일 ID</td><td id="detail-todo-relation" class="detail-todo-content"></td>	</tr>
+				<tr>	<td>등록시간</td><td id="detail-todo-createTime" class="detail-todo-content"></td>	</tr>
+				<tr>	<td>완료시간</td><td id="detail-todo-completeTime" class="detail-todo-content"></td>	</tr>
+				<tr>	<td>완료여부</td><td id="detail-todo-completeYN" class="detail-todo-content"></td>	</tr>
 			</table>
 			<div style="margin:10px">
 				<button id="btn-todo-modify">할일명 수정</button>

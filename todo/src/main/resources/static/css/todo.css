@@ -1,5 +1,12 @@
 @CHARSET "EUC-KR";
 
+h2{
+	float:left;
+}
+#initData{
+	float:right;
+}
+
 table{
 	font-family: "Tahoma", Verdana, Arial, Helvetica, sans-serif;
 	font-size:  80%;
@@ -89,7 +96,7 @@ td, th{
 }
 
 #todo-relation-list{
-	text-align: center;
+	text-align: left;
 }
 
 li{

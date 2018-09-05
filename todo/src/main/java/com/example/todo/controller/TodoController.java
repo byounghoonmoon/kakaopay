@@ -1,5 +1,8 @@
 package com.example.todo.controller;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,24 +89,42 @@ public class TodoController {
     /*
      * Method : PUT 
      * Basic : ~/api/todo/{id}
-     * Description : 특정 아이디 할일 수정 (JSON)
+     * Description : 특정 아이디 할일명 또는 완료 처리 (JSON)
      * 
      * Sample : http://localhost:9090/api/todo/2
      * 
      * */
 
     @RequestMapping(value = "/todo/{id}", method = RequestMethod.PUT)
-	public Todo updateTodo(@PathVariable(value = "id") Long TodoId, @Valid @RequestBody Todo Todo) {
+	public Todo updateTodo(@PathVariable(value = "id") Long TodoId, @Valid @RequestBody Todo reqTodo) {
+    	
+    	System.out.println(" **********************************");
+    	System.out.println(" ■ PUT Method : /todo/{id} ");
+    	System.out.println(" ■ Target id  : " + TodoId);
+    	System.out.println(" ■ Request Info : Title ==>" + reqTodo.getTitle() +" , CompleteYN ==> " +reqTodo.getCompleteYN());
+    	
+    	// 1. ID 존재확인
+    	Todo getTodo = TodoService.get(TodoId); 
+    	System.out.println(" ■ Id Exist ? : " + getTodo.getId());
+    	
+    	// 2. ID 존재 하므로, 아이디 셋팅
+    	System.out.println(" ■ Id Exist ! ");
+    	reqTodo.setId(getTodo.getId());
+		  
+    	// 2. 할일명 인지 완료처리 구분 방법 
+    	if(reqTodo.getTitle()!=null) {
+    		System.out.println(" ■ Title Change  [" + getTodo.getTitle() + " ==> " + reqTodo.getTitle() + " ]");
+    		getTodo.setTitle(reqTodo.getTitle());
+    	}
+    	else if(reqTodo.getCompleteYN() > 0){
+    		System.out.println(" ■ ToDo Complete [" + getTodo.getCompleteYN() + " ==> " + reqTodo.getCompleteYN() + " ]");
+    		getTodo.setCompleteYN(reqTodo.getCompleteYN());
+    		getTodo.setCompleteTime(LocalDateTime.now());   
+    	}        
+    	     
+    	Todo updatedTodo = TodoService.save(getTodo);
 
-    	System.out.println(" ■ 변경 아이디 : " + TodoId);
-    	// id 존재 여부 부터 확인 
-    	Todo getTodo = TodoService.get(TodoId);
-    	System.out.println(" ■ 기존 할일 명  : " + getTodo.getTitle());
-    	System.out.println(" ■ 수정 할일 명  : " + Todo.getTitle());
-		
-    	// 할일 수정 
-    	Todo.setId(getTodo.getId());
-		Todo updatedTodo = TodoService.save(Todo);
+    	System.out.println(" **********************************");
 		return updatedTodo;
 	}
 }

@@ -24,12 +24,11 @@ public class IndexController {
 	@RequestMapping("/init")
 	public void init() { 
 		System.out.println(" ■ 초기 값 생성 ! ");
-		todoRepository.save(new Todo("이체하기",""));
-		todoRepository.save(new Todo("이체하기-농협",""));
-		todoRepository.save(new Todo("이체하기-신한",""));
-		todoRepository.save(new Todo("충전하기",""));
-		todoRepository.save(new Todo("공부하기",""));
-	    
-    }
+		todoRepository.save(new Todo("신기술 역량 확보",""));
+		todoRepository.save(new Todo("커피먹기-페이 결제",""));
+		todoRepository.save(new Todo("N빵하기-페이 이체",""));
+		todoRepository.save(new Todo("기프티콘 발송-페이인증",""));
+		todoRepository.save(new Todo("이직하기-카카오페이","@1@2@3@4"));
+     }     
 
 }
